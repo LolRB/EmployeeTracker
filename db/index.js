@@ -1,122 +1,164 @@
-const pool = require('./connection');
+const pool = require("./connection");
 
 class DB {
-  constructor() {}
-
   async query(sql, args = []) {
     const client = await pool.connect();
     try {
-      const result = await client.query(sql, args);
-      return result;
+      return await client.query(sql, args);
     } finally {
       client.release();
     }
   }
 
-  // Find all employees, join with roles and departments to display their roles, salaries, departments, and managers
   findAllEmployees() {
-    return this.query(
-      "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
-    );
+    const sql = `
+      SELECT 
+        employee.id, 
+        employee.first_name, 
+        employee.last_name, 
+        role.title, 
+        department.name AS department, 
+        role.salary, 
+        CONCAT(manager.first_name, ' ', manager.last_name) AS manager 
+      FROM 
+        employee 
+        LEFT JOIN role ON employee.role_id = role.id 
+        LEFT JOIN department ON role.department_id = department.id 
+        LEFT JOIN employee manager ON manager.id = employee.manager_id;
+    `;
+    return this.query(sql);
   }
 
-  // Find all employees except the given employee id
   findAllPossibleManagers(employeeId) {
-    return this.query(
-      'SELECT id, first_name, last_name FROM employee WHERE id != $1',
-      [employeeId]
-    );
+    const sql = `
+      SELECT 
+        id, 
+        first_name, 
+        last_name 
+      FROM 
+        employee 
+      WHERE 
+        id != $1;
+    `;
+    return this.query(sql, [employeeId]);
   }
 
-  // Create a new employee
   createEmployee(employee) {
+    const sql = `
+      INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+      VALUES ($1, $2, $3, $4);
+    `;
     const { first_name, last_name, role_id, manager_id } = employee;
-    return this.query(
-      'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1, $2, $3, $4)',
-      [first_name, last_name, role_id, manager_id]
-    );
+    return this.query(sql, [first_name, last_name, role_id, manager_id]);
   }
 
-  // Remove an employee with the given id
   removeEmployee(employeeId) {
-    return this.query('DELETE FROM employee WHERE id = $1', [employeeId]);
+    const sql = "DELETE FROM employee WHERE id = $1;";
+    return this.query(sql, [employeeId]);
   }
 
-  // Update the given employee's role
   updateEmployeeRole(employeeId, roleId) {
-    return this.query('UPDATE employee SET role_id = $1 WHERE id = $2', [
-      roleId,
-      employeeId,
-    ]);
+    const sql = "UPDATE employee SET role_id = $1 WHERE id = $2;";
+    return this.query(sql, [roleId, employeeId]);
   }
 
-  // Update the given employee's manager
   updateEmployeeManager(employeeId, managerId) {
-    return this.query('UPDATE employee SET manager_id = $1 WHERE id = $2', [
-      managerId,
-      employeeId,
-    ]);
+    const sql = "UPDATE employee SET manager_id = $1 WHERE id = $2;";
+    return this.query(sql, [managerId, employeeId]);
   }
 
-  // Find all roles, join with departments to display the department name
   findAllRoles() {
-    return this.query(
-      'SELECT role.id, role.title, department.name AS department, role.salary FROM role LEFT JOIN department on role.department_id = department.id;'
-    );
+    const sql = `
+      SELECT 
+        role.id, 
+        role.title, 
+        department.name AS department, 
+        role.salary 
+      FROM 
+        role 
+        LEFT JOIN department ON role.department_id = department.id;
+    `;
+    return this.query(sql);
   }
 
-  // Create a new role
   createRole(role) {
+    const sql = `
+      INSERT INTO role (title, salary, department_id) 
+      VALUES ($1, $2, $3);
+    `;
     const { title, salary, department_id } = role;
-    return this.query(
-      'INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)',
-      [title, salary, department_id]
-    );
+    return this.query(sql, [title, salary, department_id]);
   }
 
-  // Remove a role from the db
   removeRole(roleId) {
-    return this.query('DELETE FROM role WHERE id = $1', [roleId]);
+    const sql = "DELETE FROM role WHERE id = $1;";
+    return this.query(sql, [roleId]);
   }
 
-  // Find all departments
   findAllDepartments() {
-    return this.query('SELECT department.id, department.name FROM department;');
+    const sql = "SELECT department.id, department.name FROM department;";
+    return this.query(sql);
   }
 
-  // Find all departments, join with employees and roles and sum up utilized department budget
   viewDepartmentBudgets() {
-    return this.query(
-      'SELECT department.id, department.name, SUM(role.salary) AS utilized_budget FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id GROUP BY department.id, department.name;'
-    );
+    const sql = `
+      SELECT 
+        department.id, 
+        department.name, 
+        SUM(role.salary) AS utilized_budget 
+      FROM 
+        employee 
+        LEFT JOIN role ON employee.role_id = role.id 
+        LEFT JOIN department ON role.department_id = department.id 
+      GROUP BY 
+        department.id, department.name;
+    `;
+    return this.query(sql);
   }
 
-  // Create a new department
   createDepartment(department) {
-    return this.query('INSERT INTO department (name) VALUES ($1)', [
-      department.name,
-    ]);
+    const sql = "INSERT INTO department (name) VALUES ($1);";
+    return this.query(sql, [department.name]);
   }
 
-  // Remove a department
   removeDepartment(departmentId) {
-    return this.query('DELETE FROM department WHERE id = $1', [departmentId]);
+    const sql = "DELETE FROM department WHERE id = $1;";
+    return this.query(sql, [departmentId]);
   }
 
-  // Find all employees in a given department, join with roles to display role titles
   findAllEmployeesByDepartment(departmentId) {
-    return this.query(
-      'SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department department on role.department_id = department.id WHERE department.id = $1;',
-      [departmentId]
-    );
+    const sql = `
+      SELECT 
+        employee.id, 
+        employee.first_name, 
+        employee.last_name, 
+        role.title 
+      FROM 
+        employee 
+        LEFT JOIN role ON employee.role_id = role.id 
+        LEFT JOIN department ON role.department_id = department.id 
+      WHERE 
+        department.id = $1;
+    `;
+    return this.query(sql, [departmentId]);
   }
 
-  // Find all employees by manager, join with departments and roles to display titles and department names
   findAllEmployeesByManager(managerId) {
-    return this.query(
-      'SELECT employee.id, employee.first_name, employee.last_name, department.name AS department, role.title FROM employee LEFT JOIN role on role.id = employee.role_id LEFT JOIN department ON department.id = role.department_id WHERE manager_id = $1;',
-      [managerId]
-    );
+    const sql = `
+      SELECT 
+        employee.id, 
+        employee.first_name, 
+        employee.last_name, 
+        department.name AS department, 
+        role.title 
+      FROM 
+        employee 
+        LEFT JOIN role ON role.id = employee.role_id 
+        LEFT JOIN department ON department.id = role.department_id 
+      WHERE 
+        manager_id = $1;
+    `;
+    return this.query(sql, [managerId]);
   }
 }
 
