@@ -6,10 +6,11 @@ Employee Tracker is a command-line application built with Node.js, Inquirer, and
 
 ## Table of Contents
 
-- Installation
-- Usage
-- Features
-- Schema
+- [Description](#description)
+- [Usage](#usage)
+- [Features](#features)
+- [Schema](#schema)
+- [Acknowledgements](#acknowledgements)
 
 ## Usage
 
