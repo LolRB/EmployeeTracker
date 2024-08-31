@@ -1,34 +1,34 @@
--- Drop the database if it exists
-DROP DATABASE IF EXISTS employees;
+-- Delete the database if it already exists
+DROP DATABASE IF EXISTS company_db;
 
--- Create the new database
-CREATE DATABASE employees;
+-- Create a fresh database
+CREATE DATABASE company_db;
 
--- Connect to the database
-\c employees
+-- Switch to the new database
+\connect company_db
 
--- Create the department table
-CREATE TABLE department (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(30) UNIQUE NOT NULL
+-- Generate the table for departments
+CREATE TABLE departments (
+  department_id SERIAL PRIMARY KEY,
+  department_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Create the role table
-CREATE TABLE role (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(30) UNIQUE NOT NULL,
-  salary DECIMAL NOT NULL,
-  department_id INTEGER NOT NULL,
-  CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE CASCADE
+-- Generate the table for roles
+CREATE TABLE roles (
+  role_id SERIAL PRIMARY KEY,
+  role_title VARCHAR(50) NOT NULL UNIQUE,
+  role_salary NUMERIC NOT NULL,
+  dept_id INTEGER NOT NULL,
+  CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES departments(department_id) ON DELETE CASCADE
 );
 
--- Create the employee table
-CREATE TABLE employee (
-  id SERIAL PRIMARY KEY,
-  first_name VARCHAR(30) NOT NULL,
-  last_name VARCHAR(30) NOT NULL,
-  role_id INTEGER NOT NULL,
-  CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE,
-  manager_id INTEGER,
-  CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES employee(id) ON DELETE SET NULL
+-- Generate the table for employees
+CREATE TABLE employees (
+  employee_id SERIAL PRIMARY KEY,
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
+  position_id INTEGER NOT NULL,
+  manager_ref INTEGER,
+  CONSTRAINT fk_position FOREIGN KEY (position_id) REFERENCES roles(role_id) ON DELETE CASCADE,
+  CONSTRAINT fk_manager_ref FOREIGN KEY (manager_ref) REFERENCES employees(employee_id) ON DELETE SET NULL
 );

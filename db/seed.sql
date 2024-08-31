@@ -1,16 +1,18 @@
 -- Connect to the database
-\c employees
+\connect company_db
 
-INSERT INTO department
-    (name)
+-- Insert data into departments table
+INSERT INTO departments
+    (department_name)
 VALUES
     ('Marketing'),
     ('Product Development'),
     ('Human Resources'),
     ('Customer Support');
 
-INSERT INTO role
-    (title, salary, department_id)
+-- Insert data into roles table
+INSERT INTO roles
+    (role_title, role_salary, dept_id)
 VALUES
     ('Marketing Manager', 95000, 1),
     ('Content Strategist', 75000, 1),
@@ -21,8 +23,9 @@ VALUES
     ('Support Lead', 85000, 4),
     ('Customer Support Specialist', 60000, 4);
 
-INSERT INTO employee
-    (first_name, last_name, role_id, manager_id)
+-- Insert data into employees table
+INSERT INTO employees
+    (first_name, last_name, position_id, manager_ref)
 VALUES
     ('Alice', 'Johnson', 1, NULL),
     ('Bob', 'Smith', 2, 1),
