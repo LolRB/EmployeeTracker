@@ -1,19 +1,14 @@
--- Delete the database if it already exists
 DROP DATABASE IF EXISTS company_db;
 
--- Create a fresh database
 CREATE DATABASE company_db;
 
--- Switch to the new database
 \connect company_db
 
--- Generate the table for departments
 CREATE TABLE departments (
   department_id SERIAL PRIMARY KEY,
   department_name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Generate the table for roles
 CREATE TABLE roles (
   role_id SERIAL PRIMARY KEY,
   role_title VARCHAR(50) NOT NULL UNIQUE,
@@ -22,7 +17,6 @@ CREATE TABLE roles (
   CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES departments(department_id) ON DELETE CASCADE
 );
 
--- Generate the table for employees
 CREATE TABLE employees (
   employee_id SERIAL PRIMARY KEY,
   first_name VARCHAR(50) NOT NULL,

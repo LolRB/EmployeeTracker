@@ -1,7 +1,5 @@
--- Connect to the database
 \connect company_db
 
--- Insert data into departments table
 INSERT INTO departments
     (department_name)
 VALUES
@@ -10,7 +8,6 @@ VALUES
     ('Human Resources'),
     ('Customer Support');
 
--- Insert data into roles table
 INSERT INTO roles
     (role_title, role_salary, dept_id)
 VALUES
@@ -23,7 +20,6 @@ VALUES
     ('Support Lead', 85000, 4),
     ('Customer Support Specialist', 60000, 4);
 
--- Insert data into employees table
 INSERT INTO employees
     (first_name, last_name, position_id, manager_ref)
 VALUES
